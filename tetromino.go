@@ -6,8 +6,6 @@ import (
 	"sync"
 )
 
-var _ Tetromino = (*tetromino)(nil)
-
 // Tetromino represents a falling block piece and exposes rotation and shape retrieval.
 type Tetromino interface {
 	// Rotate applies one or more Rotation transforms to the tetromino.
@@ -18,6 +16,11 @@ type Tetromino interface {
 
 // Rotation transforms a Grid (typically a tetromino's matrix) and returns a new Grid.
 type Rotation func(g Grid) Grid
+
+type tetromino struct {
+	mu   sync.RWMutex
+	grid Grid
+}
 
 func newTetromino(grid Grid, off Location) *tetromino {
 	rows, cols := grid.Size()
@@ -36,10 +39,7 @@ func newTetromino(grid Grid, off Location) *tetromino {
 	return &tetromino{grid: result}
 }
 
-type tetromino struct {
-	mu   sync.RWMutex
-	grid Grid
-}
+var _ Tetromino = (*tetromino)(nil)
 
 func (t *tetromino) Grid(fn ...Rotation) Grid {
 	t.mu.RLock()

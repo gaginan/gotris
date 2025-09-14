@@ -29,23 +29,41 @@ const (
 	Solid State = 0xFFFFFFFF
 )
 
-// newGrid creates a new grid with the specified dimensions, initialized with Empty cells.
-func newGrid(rows, cols int) Grid {
-	result := make(Grid, rows)
-	for i := range result {
-		result[i] = make([]State, cols)
-	}
-	return result
-}
-
 // Grid is a 2D matrix of cell states representing a game board or tetromino shape.
 type Grid [][]State
 
-// Fill sets all cells in the grid to the specified state.
-func (g Grid) Fill(state State) {
-	g.Walk(func(row, col int, s State) {
-		g[row][col] = state
-	})
+// Size returns the number of rows and columns in the grid.
+func (g Grid) Size() (rows, cols int) {
+	if len(g) == 0 {
+		return 0, 0
+	}
+	return len(g), len(g[0])
+}
+
+// Contains reports whether the given location is within the bounds of the grid.
+func (g Grid) Contains(l Location) bool {
+	return len(g) > 0 &&
+		l.Y >= 0 && l.Y < len(g) &&
+		l.X >= 0 && l.X < len(g[0])
+}
+
+// Walk iterates over the grid, calling fn(row, col, state) for each cell.
+func (g Grid) Walk(fn func(row, col int, state State)) {
+	for row := range g {
+		for col := range g[row] {
+			fn(row, col, g[row][col])
+		}
+	}
+}
+
+// Zero returns a new grid with the same dimensions but all cells set to Empty.
+func (g Grid) Zero() Grid {
+	if len(g) == 0 {
+		return Grid{}
+	}
+	rows := len(g)
+	cols := len(g[0])
+	return newGrid(rows, cols)
 }
 
 // Clone creates a deep copy of the grid.
@@ -55,6 +73,13 @@ func (g Grid) Clone() Grid {
 		result[row][col] = state
 	})
 	return result
+}
+
+// Fill sets all cells in the grid to the specified state.
+func (g Grid) Fill(state State) {
+	g.Walk(func(row, col int, s State) {
+		g[row][col] = state
+	})
 }
 
 // Combine overlays another grid onto a clone of the current grid at the specified offset.
@@ -68,13 +93,6 @@ func (g Grid) Combine(overlay Grid, off Location) Grid {
 		}
 	})
 	return cells
-}
-
-// Contains reports whether the given location is within the bounds of the grid.
-func (g Grid) Contains(l Location) bool {
-	return len(g) > 0 &&
-		l.Y >= 0 && l.Y < len(g) &&
-		l.X >= 0 && l.X < len(g[0])
 }
 
 // Union merges two grids into a new grid sized to contain both entirely.
@@ -102,42 +120,11 @@ func (g Grid) Union(other Grid, off Location) Grid {
 	return result
 }
 
-// Walk iterates over the grid, calling fn(row, col, state) for each cell.
-func (g Grid) Walk(fn func(row, col int, state State)) {
-	for row := range g {
-		for col := range g[row] {
-			fn(row, col, g[row][col])
-		}
-	}
-}
-
 // RotateRight returns a new grid rotated 90 degrees clockwise.
-func (g Grid) RotateRight() Grid {
-	return RotateRight(g)
-}
+func (g Grid) RotateRight() Grid { return RotateRight(g) }
 
 // RotateLeft returns a new grid rotated 90 degrees counter-clockwise.
-func (g Grid) RotateLeft() Grid {
-	return RotateLeft(g)
-}
-
-// Zero returns a new grid with the same dimensions but all cells set to Empty.
-func (g Grid) Zero() Grid {
-	if len(g) == 0 {
-		return Grid{}
-	}
-	rows := len(g)
-	cols := len(g[0])
-	return newGrid(rows, cols)
-}
-
-// Size returns the number of rows and columns in the grid.
-func (g Grid) Size() (rows, cols int) {
-	if len(g) == 0 {
-		return 0, 0
-	}
-	return len(g), len(g[0])
-}
+func (g Grid) RotateLeft() Grid { return RotateLeft(g) }
 
 // RotateRight rotates the grid 90 degrees clockwise and returns a new grid.
 func RotateRight(g Grid) Grid {
@@ -162,5 +149,14 @@ func RotateLeft(g Grid) Grid {
 	g.Walk(func(row, col int, state State) {
 		result[cols-1-col][row] = state
 	})
+	return result
+}
+
+// newGrid creates a new grid with the specified dimensions, initialized with Empty cells.
+func newGrid(rows, cols int) Grid {
+	result := make(Grid, rows)
+	for i := range result {
+		result[i] = make([]State, cols)
+	}
 	return result
 }

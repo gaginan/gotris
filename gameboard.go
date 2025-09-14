@@ -7,8 +7,6 @@ import (
 	"sync"
 )
 
-var _ GameBoard = (*gameBoard)(nil)
-
 // GameBoard is the game-level controller that manages the falling-piece queue
 // and applies operations to the underlying Board grid.
 type GameBoard interface {
@@ -22,13 +20,6 @@ type GameBoard interface {
 	Preview() []Grid
 	// IsTopOut returns true if the provided piece overlaps occupied cells when spawned.
 	IsTopOut(piece Piece) bool
-}
-
-// Piece represents a falling tetromino instance with a shape and a top-left
-// location in the board coordinate system.
-type Piece struct {
-	Grid     Grid
-	Location Location
 }
 
 // Control is an operation applied to a piece in the context of the underlying Board.
@@ -91,6 +82,15 @@ type gameBoard struct {
 	rows, cols int
 	upcoming   []Tetromino
 }
+
+// Piece represents a falling tetromino instance with a shape and a top-left
+// location in the board coordinate system.
+type Piece struct {
+	Grid     Grid
+	Location Location
+}
+
+var _ GameBoard = (*gameBoard)(nil)
 
 func (b *gameBoard) Apply(piece *Piece, fn ...Control) (ok bool) {
 	b.mu.Lock()

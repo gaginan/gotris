@@ -7,8 +7,6 @@ import (
 	"sync"
 )
 
-var _ Board = (*board)(nil)
-
 // Board represents the grid where pieces fall. Board stores stacked cells and
 // provides collision tests and compaction logic.
 type Board interface {
@@ -31,6 +29,14 @@ type Board interface {
 	Clear()
 }
 
+type board struct {
+	mu         sync.RWMutex
+	rows, cols int
+	grid       Grid
+}
+
+var _ Board = (*board)(nil)
+
 // NewBoard creates a new Board (grid) with the specified number of rows and columns.
 func NewBoard(rows, cols int) Board {
 	return &board{
@@ -38,23 +44,6 @@ func NewBoard(rows, cols int) Board {
 		cols: cols,
 		grid: newGrid(rows, cols),
 	}
-}
-
-type board struct {
-	mu         sync.RWMutex
-	rows, cols int
-	grid       Grid
-}
-
-func (b *board) Test(grid Grid, l Location) (ok bool) {
-	b.mu.RLock()
-	defer b.mu.RUnlock()
-	ok = true
-	grid.Walk(func(row, col int, state State) {
-		location := Location{X: col + l.X, Y: row + l.Y}
-		ok = ok && (state == Empty || b.Contains(location) && b.Empty(location))
-	})
-	return
 }
 
 func (b *board) Empty(l Location) bool {
@@ -68,16 +57,27 @@ func (b *board) Contains(l Location) bool {
 		l.Y >= 0
 }
 
-func (b *board) Clear() {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-	b.grid = newGrid(b.rows, b.cols)
-}
-
 func (b *board) State() Grid {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
 	return b.grid.Clone()
+}
+
+func (b *board) Test(grid Grid, l Location) (ok bool) {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	ok = true
+	grid.Walk(func(row, col int, state State) {
+		location := Location{X: col + l.X, Y: row + l.Y}
+		ok = ok && (state == Empty || b.Contains(location) && b.Empty(location))
+	})
+	return
+}
+
+func (b *board) Clear() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.grid = newGrid(b.rows, b.cols)
 }
 
 func (b *board) Stack(grid Grid, l Location) {
