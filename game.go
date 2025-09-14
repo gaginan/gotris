@@ -68,6 +68,7 @@ func (g *game) Run(ctx context.Context) {
 		}
 	}
 }
+
 func (g *game) levelUp() time.Duration {
 	g.mu.Lock()
 	defer g.mu.Unlock()

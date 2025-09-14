@@ -54,4 +54,10 @@ func main() {
   - Game: loop (gravity + inputs)
   - Renderer: pure observer of GameState snapshots
 - `Grid` helpers include rotation, overlays, walking, cloning.
-- Shapes are functions returning `Grid` and are padded into square matrices for rotation stability.
+- Shapes are functions returning `Grid` and are padded into square matrices for rotation stability。
+
+## AI Contribution
+
+- **Comments**: Code comments.
+- **Documentation**: This README content.
+- **Reviews**: Code reviews following the official Go style and best practices.
