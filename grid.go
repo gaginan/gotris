@@ -63,7 +63,7 @@ func (g Grid) Zero() Grid {
 	}
 	rows := len(g)
 	cols := len(g[0])
-	return newGrid(rows, cols)
+	return NewGrid(rows, cols)
 }
 
 // Clone creates a deep copy of the grid.
@@ -106,7 +106,7 @@ func (g Grid) Union(other Grid, off Location) Grid {
 	}
 	rows := max(len(g), len(other)+off.Y)
 	cols := max(len(g[0]), len(other[0])+off.X)
-	result := newGrid(rows, cols)
+	result := NewGrid(rows, cols)
 	g.Walk(func(row, col int, state State) {
 		if state != Empty {
 			result[row][col] = state
@@ -132,7 +132,7 @@ func RotateRight(g Grid) Grid {
 		return Grid{}
 	}
 	rows, cols := g.Size()
-	result := newGrid(cols, rows) // Swap dimensions for 90-degree rotation
+	result := NewGrid(cols, rows) // Swap dimensions for 90-degree rotation
 	g.Walk(func(row, col int, state State) {
 		result[col][rows-1-row] = state
 	})
@@ -145,15 +145,15 @@ func RotateLeft(g Grid) Grid {
 		return Grid{}
 	}
 	rows, cols := g.Size()
-	result := newGrid(cols, rows) // Swap dimensions for 90-degree rotation
+	result := NewGrid(cols, rows) // Swap dimensions for 90-degree rotation
 	g.Walk(func(row, col int, state State) {
 		result[cols-1-col][row] = state
 	})
 	return result
 }
 
-// newGrid creates a new grid with the specified dimensions, initialized with Empty cells.
-func newGrid(rows, cols int) Grid {
+// NewGrid creates a new grid with the specified dimensions, initialized with Empty cells.
+func NewGrid(rows, cols int) Grid {
 	result := make(Grid, rows)
 	for i := range result {
 		result[i] = make([]State, cols)

@@ -27,7 +27,7 @@ func newTetromino(grid Grid, off Location) *tetromino {
 	height := rows + off.Y
 	width := cols + off.X
 	side := max(height, width)
-	result := newGrid(side, side)
+	result := NewGrid(side, side)
 
 	for i := range grid {
 		for j := range grid[i] {

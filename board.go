@@ -42,7 +42,7 @@ func NewBoard(rows, cols int) Board {
 	return &board{
 		rows: rows,
 		cols: cols,
-		grid: newGrid(rows, cols),
+		grid: NewGrid(rows, cols),
 	}
 }
 
@@ -77,7 +77,7 @@ func (b *board) Test(grid Grid, l Location) (ok bool) {
 func (b *board) Clear() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	b.grid = newGrid(b.rows, b.cols)
+	b.grid = NewGrid(b.rows, b.cols)
 }
 
 func (b *board) Stack(grid Grid, l Location) {
@@ -94,7 +94,7 @@ func (b *board) Stack(grid Grid, l Location) {
 func (b *board) Compact() int {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	grid := newGrid(b.rows, b.cols)
+	grid := NewGrid(b.rows, b.cols)
 	var line = b.rows - 1
 	var rows = 0
 	for i := b.rows - 1; i >= 0; i-- {
