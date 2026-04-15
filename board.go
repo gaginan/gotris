@@ -27,6 +27,8 @@ type Board interface {
 	Compact() int
 	// Clear resets all cells in the board to Empty state.
 	Clear()
+	// Full reports whether the board is completely filled with non-empty cells.
+	Full() bool
 }
 
 type board struct {
@@ -107,4 +109,17 @@ func (b *board) Compact() int {
 	}
 	b.grid = grid
 	return rows
+}
+
+func (b *board) Full() (ok bool) {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	ok = true
+	b.grid.Walk(func(row, col int, state State) {
+		if state == Empty {
+			ok = false
+			return
+		}
+	})
+	return ok
 }
