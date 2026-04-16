@@ -189,6 +189,7 @@ func (g Grid) Hash() string {
 	return string(hash)
 }
 
+// LocationsOf returns a slice of all locations in the grid that match the specified state.
 func (g Grid) LocationsOf(state State) (locations []Location) {
 	g.Walk(func(row, col int, s State) {
 		if s == state {
