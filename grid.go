@@ -179,8 +179,7 @@ func (g Grid) Rotations() []Grid {
 	return rotations
 }
 
-// Hash computes a string representation of the grid's cell states,
-// useful for identifying unique configurations.
+// Hash computes a string representation of the grid's cell states, useful for identifying unique configurations.
 func (g Grid) Hash() string {
 	hash := make([]byte, 0, len(g)*len(g[0]))
 	g.Walk(func(row, col int, state State) {
