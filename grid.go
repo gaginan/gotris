@@ -160,3 +160,31 @@ func NewGrid(rows, cols int) Grid {
 	}
 	return result
 }
+
+// Rotations generates all unique 90-degree rotations of the grid, returning them as a slice.
+func (g Grid) Rotations() []Grid {
+	var rotations []Grid
+	var signatures = make(map[string]struct{})
+	var candidate = g
+	for i := 0; i < 4; i++ {
+		if i > 0 {
+			candidate = candidate.RotateRight()
+		}
+		hash := candidate.Hash()
+		if _, seen := signatures[hash]; !seen {
+			signatures[hash] = struct{}{}
+			rotations = append(rotations, candidate)
+		}
+	}
+	return rotations
+}
+
+// Hash computes a string representation of the grid's cell states,
+// useful for identifying unique configurations.
+func (g Grid) Hash() string {
+	hash := make([]byte, 0, len(g)*len(g[0]))
+	g.Walk(func(row, col int, state State) {
+		hash = append(hash, byte(state))
+	})
+	return string(hash)
+}
