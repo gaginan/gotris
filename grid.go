@@ -188,3 +188,12 @@ func (g Grid) Hash() string {
 	})
 	return string(hash)
 }
+
+func (g Grid) LocationsOf(state State) (locations []Location) {
+	g.Walk(func(row, col int, s State) {
+		if s == state {
+			locations = append(locations, Location{X: col, Y: row})
+		}
+	})
+	return locations
+}
