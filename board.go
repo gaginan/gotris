@@ -123,3 +123,14 @@ func (b *board) Full() (ok bool) {
 	})
 	return ok
 }
+
+func (b *board) Unstack(grid Grid, l Location) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	grid.Walk(func(row, col int, state State) {
+		location := Location{X: col + l.X, Y: row + l.Y}
+		if state != Empty && b.Contains(location) {
+			b.grid[location.Y][location.X] = Empty
+		}
+	})
+}
