@@ -18,7 +18,12 @@ type Board interface {
 	Empty(l Location) bool
 	// Stack merges non-empty cells of the shape into the board at the given location.
 	// Cells outside the board bounds are ignored.
-	Stack(grid Grid, l Location)
+	// Returns the locations of cells that were changed from Empty to non-empty.
+	Stack(grid Grid, l Location) (affected []Location)
+	// Unstack removes non-empty cells of the shape from the board at the given location.
+	// Cells outside the board bounds are ignored.
+	// Returns the locations of cells that were changed from non-empty to Empty.
+	Unstack(grid Grid, l Location) (affected []Location)
 	// Test returns whether the shape can be placed at the location without collisions or bounds errors.
 	Test(grid Grid, l Location) (ok bool)
 	// State returns a copy of the board's cells.
@@ -82,15 +87,17 @@ func (b *board) Clear() {
 	b.grid = NewGrid(b.rows, b.cols)
 }
 
-func (b *board) Stack(grid Grid, l Location) {
+func (b *board) Stack(grid Grid, l Location) (affected []Location) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	grid.Walk(func(row, col int, state State) {
 		location := Location{X: col + l.X, Y: row + l.Y}
 		if state != Empty && b.Contains(location) && b.Empty(location) {
 			b.grid[location.Y][location.X] = state
+			affected = append(affected, location)
 		}
 	})
+	return
 }
 
 func (b *board) Compact() int {
@@ -124,13 +131,15 @@ func (b *board) Full() (ok bool) {
 	return ok
 }
 
-func (b *board) Unstack(grid Grid, l Location) {
+func (b *board) Unstack(grid Grid, l Location) (affected []Location) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	grid.Walk(func(row, col int, state State) {
 		location := Location{X: col + l.X, Y: row + l.Y}
 		if state != Empty && b.Contains(location) {
 			b.grid[location.Y][location.X] = Empty
+			affected = append(affected, location)
 		}
 	})
+	return
 }
