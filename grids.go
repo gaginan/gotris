@@ -9,6 +9,24 @@ func (g Grid) Hash() string {
 	return string(hash)
 }
 
+// Rotations returns a slice of unique grids representing all distinct rotations of the original grid.
+func (g Grid) Rotations() []Grid {
+	var rotations []Grid
+	var signatures = make(map[string]struct{})
+	var candidate = g
+	for i := 0; i < 4; i++ {
+		if i > 0 {
+			candidate = candidate.RotateRight()
+		}
+		hash := candidate.Hash()
+		if _, seen := signatures[hash]; !seen {
+			signatures[hash] = struct{}{}
+			rotations = append(rotations, candidate)
+		}
+	}
+	return rotations
+}
+
 // Where returns all locations in the grid that match the specified state.
 func (g Grid) Where(state State) (locations []Location) {
 	g.Walk(func(row, col int, s State) {
