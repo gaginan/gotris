@@ -1,10 +1,19 @@
 package gotris
 
-// Hash computes a string representation of the grid's cell states, useful for identifying unique configurations.
+import "strconv"
+
+// Hash computes a string representation of the grid dimensions and cell states,
+// useful for identifying unique configurations.
 func (g Grid) Hash() string {
-	hash := make([]byte, 0, len(g)*len(g[0]))
+	rows, cols := g.Size()
+	hash := make([]byte, 0, rows*cols*2+16)
+	hash = strconv.AppendInt(hash, int64(rows), 10)
+	hash = append(hash, 'x')
+	hash = strconv.AppendInt(hash, int64(cols), 10)
+	hash = append(hash, ':')
 	g.Walk(func(row, col int, state State) {
-		hash = append(hash, byte(state))
+		hash = strconv.AppendInt(hash, int64(state), 10)
+		hash = append(hash, ',')
 	})
 	return string(hash)
 }
@@ -15,14 +24,12 @@ func (g Grid) Rotations() []Grid {
 	var signatures = make(map[string]struct{})
 	var candidate = g
 	for i := 0; i < 4; i++ {
-		if i > 0 {
-			candidate = candidate.RotateRight()
-		}
 		hash := candidate.Hash()
 		if _, seen := signatures[hash]; !seen {
 			signatures[hash] = struct{}{}
 			rotations = append(rotations, candidate)
 		}
+		candidate = candidate.RotateRight()
 	}
 	return rotations
 }
