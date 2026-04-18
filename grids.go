@@ -44,6 +44,16 @@ func (g Grid) Where(state State) (locations []Location) {
 	return
 }
 
+// WhereNot returns all locations in the grid that do not match the specified state.
+func (g Grid) WhereNot(state State) (locations []Location) {
+	g.Walk(func(row, col int, s State) {
+		if s != state {
+			locations = append(locations, Location{X: col, Y: row})
+		}
+	})
+	return
+}
+
 // Has checks if the cell at the given location equals the specified state, returning false if the location is out of bounds.
 func (g Grid) Has(state State, at Location) bool {
 	if g.Contains(at) {
