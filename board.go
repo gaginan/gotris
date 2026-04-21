@@ -34,6 +34,8 @@ type Board interface {
 	Clear()
 	// Full reports whether the board is completely filled with non-empty cells.
 	Full() bool
+	// InBounds reports whether all non-empty cells of the shape at the location are within board bounds.
+	InBounds(grid Grid, l Location) bool
 }
 
 type board struct {
@@ -142,4 +144,17 @@ func (b *board) Unstack(grid Grid, l Location) (affected []Location) {
 		}
 	})
 	return
+}
+
+func (b *board) InBounds(g Grid, l Location) bool {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	locations := g.WhereNot(Empty)
+	for _, loc := range locations {
+		location := Location{X: loc.X + l.X, Y: loc.Y + l.Y}
+		if !b.Contains(location) {
+			return false
+		}
+	}
+	return true
 }
